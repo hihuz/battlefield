@@ -7,7 +7,7 @@
     "fix-lint": "eslint --fix ./src",
     "test": "jest",
     "test:update": "jest -u",
-    "test:watch": "yarn test -- -watch",
+    "test:watch": "yarn test -- --watch",
     "cover": "yarn test -- --coverage"
   },
   "dependencies": {},
