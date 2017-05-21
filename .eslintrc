@@ -6,25 +6,9 @@
   },
   "extends": [
     "airbnb",
-    "prettier",
-    "prettier/react"
+    "prettier"
   ],
   "plugins": [
-    "react",
     "import"
-  ],
-  "rules": {
-    "react/jsx-filename-extension": [
-      1,
-      {
-        "extensions": [
-          ".js",
-          ".jsx"
-        ]
-      }
-    ],
-    "react/prop-types": 0,
-    "react/no-danger": 0,
-    "react/no-array-index-key": 0
-  }
+  ]
 }
