@@ -38,15 +38,18 @@ const countSubmarines = flatField =>
   flatField.filter(({ neighbors, filled }) => filled && countNeighbors(neighbors) === 0).length;
 
 // Neighborception
-const countDestroyers = ({ flatField, field }) =>
-  flatField.filter(
+const countDestroyers = ({ flatField, field }) => {
+  const destroyers = flatField.filter(
     ({ neighbors, filled }) =>
       filled &&
       countNeighbors(neighbors) === 1 &&
       neighbors[0].x >= 0 &&
       neighbors[0].y >= 0 &&
       countNeighbors(getNeighbors({ x: neighbors[0].x, y: neighbors[0].y, field })) === 1
-  ).length / 2;
+  );
+  console.log(destroyers);
+  return destroyers.length / 2;
+};
 
 const flattenField = field =>
   field.reduce(

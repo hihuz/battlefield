@@ -21,6 +21,56 @@ describe("getNeighbors", () => {
 
     expect(actual).toEqual(expected);
   });
+
+  it("should fucking work", () => {
+    const field = [
+      [1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+      [1, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+      [1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+
+    const expected = [
+      { x: 4, y: 1, filled: false },
+      { x: 3, y: 2, filled: false },
+      { x: 5, y: 2, filled: true },
+      { x: 4, y: 3, filled: false }
+    ];
+
+    const actual = getNeighbors({ x: 4, y: 2, field });
+    expect(actual).toEqual(expected);
+  });
+
+  it("should fucking work take 2", () => {
+    const field = [
+      [1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+      [1, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+      [1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+
+    const expected = [
+      { x: 5, y: 1, filled: false },
+      { x: 4, y: 2, filled: true },
+      { x: 6, y: 2, filled: true },
+      { x: 5, y: 3, filled: false }
+    ];
+
+    const actual = getNeighbors({ x: 5, y: 2, field });
+    expect(actual).toEqual(expected);
+  });
 });
 
 describe("flattenField", () => {
@@ -98,7 +148,18 @@ describe("countSubmarines", () => {
   });
 });
 
-describe("countDestroyers", () => {
+describe.only("countDestroyers", () => {
+  // the neighbors check is failing here:
+  // countNeighbors(getNeighbors({ x: neighbors[0].x, y: neighbors[0].y, field })) === 1;
+  it.only("hello", () => {
+    const field = [[0, 0, 0], [1, 1, 1], [0, 0, 0]];
+    const flatField = flattenField(field);
+    const actual = countDestroyers({ flatField, field });
+    const expected = 0;
+
+    expect(actual).toEqual(expected);
+  });
+
   it("should return the number of destroyers in the passed field", () => {
     const field = [
       [1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
@@ -113,7 +174,6 @@ describe("countDestroyers", () => {
       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ];
     const flatField = flattenField(field);
-    console.log("neighbors count", flatField.filter(field => field.neighbors.length === 1).length);
     const actual = countDestroyers({ flatField, field });
     const expected = 3;
 
