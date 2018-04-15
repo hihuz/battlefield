@@ -1,0 +1,122 @@
+import {
+  hasDiagonalNeighbors,
+  getNeighbors,
+  hasPerpendicularNeighbors,
+  countNeighbors,
+  countSubmarines,
+  countDestroyers,
+  flattenField
+} from "./battlefield";
+
+describe("getNeighbors", () => {
+  it("should return the neighbors of a given cell", () => {
+    const field = [[0, 1, 0], [1, 0, 1]];
+    const expected = [
+      { x: 0, y: -1, filled: false },
+      { x: -1, y: 0, filled: false },
+      { x: 1, y: 0, filled: true },
+      { x: 0, y: 1, filled: true }
+    ];
+    const actual = getNeighbors({ x: 0, y: 0, field });
+
+    expect(actual).toEqual(expected);
+  });
+});
+
+describe("flattenField", () => {
+  it("should flatten a field, duh", () => {
+    const field = [[0, 1, 0], [1, 0, 1]];
+    const expected = [
+      {
+        x: 0,
+        y: 0,
+        neighbors: getNeighbors({ x: 0, y: 0, field }),
+        filled: false
+      },
+      {
+        x: 1,
+        y: 0,
+        neighbors: getNeighbors({ x: 1, y: 0, field }),
+        filled: true
+      },
+      {
+        x: 2,
+        y: 0,
+        neighbors: getNeighbors({ x: 2, y: 0, field }),
+        filled: false
+      },
+      {
+        x: 0,
+        y: 1,
+        neighbors: getNeighbors({ x: 0, y: 1, field }),
+        filled: true
+      },
+      {
+        x: 1,
+        y: 1,
+        neighbors: getNeighbors({ x: 1, y: 1, field }),
+        filled: false
+      },
+      {
+        x: 2,
+        y: 1,
+        neighbors: getNeighbors({ x: 2, y: 1, field }),
+        filled: true
+      }
+    ];
+
+    expect(flattenField(field)).toEqual(expected);
+  });
+});
+
+describe("countNeighbors", () => {
+  it("should return the number of filled neighbors", () => {
+    const neighbors = [{ filled: false }, { filled: true }, { filled: true }, { filled: false }];
+    expect(countNeighbors(neighbors)).toEqual(2);
+  });
+});
+
+describe("countSubmarines", () => {
+  it("should return the number of submarines in the passed field", () => {
+    const field = [
+      [1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+      [1, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+      [1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+    const flatField = flattenField(field);
+    const actual = countSubmarines(flatField);
+    const expected = 4;
+
+    expect(actual).toEqual(expected);
+  });
+});
+
+describe("countDestroyers", () => {
+  it("should return the number of destroyers in the passed field", () => {
+    const field = [
+      [1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+      [1, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+      [1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+    const flatField = flattenField(field);
+    console.log("neighbors count", flatField.filter(field => field.neighbors.length === 1).length);
+    const actual = countDestroyers({ flatField, field });
+    const expected = 3;
+
+    expect(actual).toEqual(expected);
+  });
+});
