@@ -1,23 +1,11 @@
-// idea :
-// 1) validate that there are 0 diagonal neighbors
-// 2) validate that no cell has neighbors in an perpendicular way (this will also validate that no cell has more than 2 neighbors)
-// 1 and 2 pretty much ensure that there are no overlapping ships
-// 3) count submarines, simply the number of cells that have 0 neighbors, 1 pass
-// 4) count destroyers, simply the number of cells that have 1 neighbor, and to which the neighbor has also 1 neighbor for this pass, keep a map of 'explored cells' to not count the same destroyer twice
-// 5) count cruisers, simply the number of cells that have 2 neighbors, both of which have 1 single neighbor
-
-// maybe keep a map of 0 neighbors, 1 neighbor, 2 neighbors cells
-
-// This is a first validation check
 const hasDiagonalNeighbors = ({ x, y }, field) =>
   [
-    Boolean(field[y - 1][x - 1]),
-    Boolean(field[y + 1][x - 1]),
-    Boolean(field[y - 1][x + 1]),
-    Boolean(field[y - 1][x + 1])
+    y > 0 && x > 0 && Boolean(field[y - 1][x - 1]),
+    y < field.length - 1 && x > 0 && Boolean(field[y + 1][x - 1]),
+    y > 0 && x < field[y].length - 1 && Boolean(field[y - 1][x + 1]),
+    y < field.length - 1 && x < field[y].length - 1 && Boolean(field[y + 1][x + 1])
   ].filter(exists => exists).length > 0;
 
-// this should count only valid neighbors, invalid cells have already been ruled out
 const getNeighbors = ({ x, y, field }) => [
   { x, y: y - 1, filled: y > 0 ? Boolean(field[y - 1][x]) : false },
   { x: x - 1, y, filled: x > 0 ? Boolean(field[y][x - 1]) : false },
@@ -27,10 +15,12 @@ const getNeighbors = ({ x, y, field }) => [
 
 const hasHorizontalNeighbors = neighbors => neighbors[1].filled || neighbors[2].filled;
 
-const hasVerticalNeighbors = (neighbors, field) => neighbors[0].filled || neighbors[3].filled;
+const hasVerticalNeighbors = neighbors => neighbors[0].filled || neighbors[3].filled;
 
-const hasPerpendicularNeighbors = cell =>
-  hasHorizontalNeighbors(cell) && hasVerticalNeighbors(cell);
+const hasPerpendicularNeighbors = (cell, field) => {
+  const neighbors = getNeighbors({ x: cell.x, y: cell.y, field });
+  return hasHorizontalNeighbors(neighbors) && hasVerticalNeighbors(neighbors);
+};
 
 const countNeighbors = neighbors => neighbors.filter(neighbor => neighbor.filled).length;
 
@@ -39,16 +29,51 @@ const countSubmarines = flatField =>
 
 // Neighborception
 const countDestroyers = ({ flatField, field }) => {
-  const destroyers = flatField.filter(
-    ({ neighbors, filled }) =>
-      filled &&
-      countNeighbors(neighbors) === 1 &&
-      neighbors[0].x >= 0 &&
-      neighbors[0].y >= 0 &&
-      countNeighbors(getNeighbors({ x: neighbors[0].x, y: neighbors[0].y, field })) === 1
+  return (
+    flatField.filter(({ x, y, neighbors, filled }) => {
+      const uniqueFilledNeighbor =
+        filled && countNeighbors(neighbors) === 1 && neighbors.find(neighbor => neighbor.filled);
+      return (
+        uniqueFilledNeighbor &&
+        countNeighbors(
+          getNeighbors({ x: uniqueFilledNeighbor.x, y: uniqueFilledNeighbor.y, field })
+        ) === 1
+      );
+    }).length / 2
   );
-  console.log(destroyers);
-  return destroyers.length / 2;
+};
+
+const countCruisers = ({ flatField, field }) => {
+  return flatField.filter(
+    ({ x, y, neighbors, filled }) =>
+      filled &&
+      countNeighbors(neighbors) === 2 &&
+      neighbors.filter(
+        neighbor =>
+          neighbor.filled &&
+          countNeighbors(getNeighbors({ x: neighbor.x, y: neighbor.y, field })) === 1
+      ).length === 2
+  ).length;
+};
+
+const countBattleships = ({ flatField, field }) => {
+  return (
+    flatField.filter(
+      ({ x, y, neighbors, filled }) =>
+        filled &&
+        countNeighbors(neighbors) === 2 &&
+        neighbors.filter(
+          neighbor =>
+            neighbor.filled &&
+            countNeighbors(getNeighbors({ x: neighbor.x, y: neighbor.y, field })) === 1
+        ).length === 1 &&
+        neighbors.filter(
+          neighbor =>
+            neighbor.filled &&
+            countNeighbors(getNeighbors({ x: neighbor.x, y: neighbor.y, field })) === 2
+        ).length === 1
+    ).length / 2
+  );
 };
 
 const flattenField = field =>
@@ -69,28 +94,17 @@ const flattenField = field =>
 const validateBattlefield = field => {
   const flatField = flattenField(field);
 
-  console.log("field", field);
-  console.log("submarines", countSubmarines(flatField));
-  console.log("destroyers", countDestroyers({ flatField, field }));
-
-  if (
-    flatField.find(cell => hasPerpendicularNeighbors(cell) || hasDiagonalNeighbors({ cell, field }))
-  ) {
-    console.log("we found perpendicular or diagonal neighbors, shoot");
-    return false;
-  }
-  return field;
+  return (
+    !flatField.find(
+      cell =>
+        cell.filled && (hasPerpendicularNeighbors(cell, field) || hasDiagonalNeighbors(cell, field))
+    ) &&
+    countSubmarines(flatField) === 4 &&
+    countDestroyers({ flatField, field }) === 3 &&
+    countCruisers({ flatField, field }) === 2 &&
+    countBattleships({ flatField, field }) === 1
+  );
 };
-// [ [ 1, 0, 0, 0, 0, 1, 1, 0, 0, 0 ],
-//   [ 1, 0, 1, 0, 0, 0, 0, 0, 1, 0 ],
-//   [ 1, 0, 1, 0, 1, 1, 1, 0, 1, 0 ],
-//   [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 ],
-//   [ 0, 0, 0, 0, 1, 1, 1, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 ],
-//   [ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 ],
-//   [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]
 
 export {
   hasDiagonalNeighbors,
@@ -99,5 +113,7 @@ export {
   countNeighbors,
   countSubmarines,
   countDestroyers,
+  countCruisers,
+  countBattleships,
   flattenField
 };

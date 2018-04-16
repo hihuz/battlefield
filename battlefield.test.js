@@ -5,6 +5,8 @@ import {
   countNeighbors,
   countSubmarines,
   countDestroyers,
+  countCruisers,
+  countBattleships,
   flattenField
 } from "./battlefield";
 
@@ -148,18 +150,7 @@ describe("countSubmarines", () => {
   });
 });
 
-describe.only("countDestroyers", () => {
-  // the neighbors check is failing here:
-  // countNeighbors(getNeighbors({ x: neighbors[0].x, y: neighbors[0].y, field })) === 1;
-  it.only("hello", () => {
-    const field = [[0, 0, 0], [1, 1, 1], [0, 0, 0]];
-    const flatField = flattenField(field);
-    const actual = countDestroyers({ flatField, field });
-    const expected = 0;
-
-    expect(actual).toEqual(expected);
-  });
-
+describe("countDestroyers", () => {
   it("should return the number of destroyers in the passed field", () => {
     const field = [
       [1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
@@ -176,6 +167,50 @@ describe.only("countDestroyers", () => {
     const flatField = flattenField(field);
     const actual = countDestroyers({ flatField, field });
     const expected = 3;
+
+    expect(actual).toEqual(expected);
+  });
+});
+
+describe("countCruisers", () => {
+  it("should return the number of cruisers in the passed field", () => {
+    const field = [
+      [1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+      [1, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+      [1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+    const flatField = flattenField(field);
+    const actual = countCruisers({ flatField, field });
+    const expected = 2;
+
+    expect(actual).toEqual(expected);
+  });
+});
+
+describe("countBattleships", () => {
+  it("should return the number of battleships in the passed field", () => {
+    const field = [
+      [1, 0, 0, 0, 0, 1, 1, 0, 0, 0],
+      [1, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+      [1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 1, 1, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ];
+    const flatField = flattenField(field);
+    const actual = countBattleships({ flatField, field });
+    const expected = 1;
 
     expect(actual).toEqual(expected);
   });
