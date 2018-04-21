@@ -25,14 +25,14 @@ const hasPerpendicularNeighbors = (cell, field) => {
 const countNeighbors = neighbors => neighbors.filter(neighbor => neighbor.filled).length;
 
 const countSubmarines = flatField =>
-  flatField.filter(({ neighbors, filled }) => filled && countNeighbors(neighbors) === 0).length;
+  flatField.filter(({ neighbors }) => countNeighbors(neighbors) === 0).length;
 
 // Neighborception
 const countDestroyers = ({ flatField, field }) => {
   return (
-    flatField.filter(({ x, y, neighbors, filled }) => {
+    flatField.filter(({ x, y, neighbors }) => {
       const uniqueFilledNeighbor =
-        filled && countNeighbors(neighbors) === 1 && neighbors.find(neighbor => neighbor.filled);
+        countNeighbors(neighbors) === 1 && neighbors.find(neighbor => neighbor.filled);
       return (
         uniqueFilledNeighbor &&
         countNeighbors(
@@ -45,8 +45,7 @@ const countDestroyers = ({ flatField, field }) => {
 
 const countCruisers = ({ flatField, field }) => {
   return flatField.filter(
-    ({ x, y, neighbors, filled }) =>
-      filled &&
+    ({ x, y, neighbors }) =>
       countNeighbors(neighbors) === 2 &&
       neighbors.filter(
         neighbor =>
@@ -59,8 +58,7 @@ const countCruisers = ({ flatField, field }) => {
 const countBattleships = ({ flatField, field }) => {
   return (
     flatField.filter(
-      ({ x, y, neighbors, filled }) =>
-        filled &&
+      ({ x, y, neighbors }) =>
         countNeighbors(neighbors) === 2 &&
         neighbors.filter(
           neighbor =>
@@ -80,13 +78,18 @@ const flattenField = field =>
   field.reduce(
     (acc, cur, y) => [
       ...acc,
-      ...cur.map((cell, x) => ({
-        x,
-        y,
-        neighbors: getNeighbors({ x, y, field }),
-        // This is largely a useless notion, I could simply filter out cells that are not filled
-        filled: Boolean(cell)
-      }))
+      ...cur
+        .map(
+          (cell, x) =>
+            cell
+              ? {
+                  x,
+                  y,
+                  neighbors: getNeighbors({ x, y, field })
+                }
+              : cell
+        )
+        .filter(filled => filled)
     ],
     []
   );
@@ -96,8 +99,7 @@ const validateBattlefield = field => {
 
   return (
     !flatField.find(
-      cell =>
-        cell.filled && (hasPerpendicularNeighbors(cell, field) || hasDiagonalNeighbors(cell, field))
+      cell => hasPerpendicularNeighbors(cell, field) || hasDiagonalNeighbors(cell, field)
     ) &&
     countSubmarines(flatField) === 4 &&
     countDestroyers({ flatField, field }) === 3 &&

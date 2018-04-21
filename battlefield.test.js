@@ -80,40 +80,19 @@ describe("flattenField", () => {
     const field = [[0, 1, 0], [1, 0, 1]];
     const expected = [
       {
-        x: 0,
-        y: 0,
-        neighbors: getNeighbors({ x: 0, y: 0, field }),
-        filled: false
-      },
-      {
         x: 1,
         y: 0,
-        neighbors: getNeighbors({ x: 1, y: 0, field }),
-        filled: true
-      },
-      {
-        x: 2,
-        y: 0,
-        neighbors: getNeighbors({ x: 2, y: 0, field }),
-        filled: false
+        neighbors: getNeighbors({ x: 1, y: 0, field })
       },
       {
         x: 0,
         y: 1,
-        neighbors: getNeighbors({ x: 0, y: 1, field }),
-        filled: true
-      },
-      {
-        x: 1,
-        y: 1,
-        neighbors: getNeighbors({ x: 1, y: 1, field }),
-        filled: false
+        neighbors: getNeighbors({ x: 0, y: 1, field })
       },
       {
         x: 2,
         y: 1,
-        neighbors: getNeighbors({ x: 2, y: 1, field }),
-        filled: true
+        neighbors: getNeighbors({ x: 2, y: 1, field })
       }
     ];
 
